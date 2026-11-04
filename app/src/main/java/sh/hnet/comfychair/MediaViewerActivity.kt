@@ -67,6 +67,8 @@ class MediaViewerActivity : ComponentActivity() {
         const val EXTRA_PORT = "port"
         const val EXTRA_GALLERY_ITEMS_JSON = "gallery_items_json"
         const val EXTRA_INITIAL_INDEX = "initial_index"
+        /** Page up/down instead of left/right (used when opened from a generation screen). */
+        const val EXTRA_VERTICAL = "vertical"
 
         // Single mode extras
         const val EXTRA_IS_VIDEO = "is_video"
@@ -90,7 +92,8 @@ class MediaViewerActivity : ComponentActivity() {
             hostname: String,
             port: Int,
             items: List<MediaViewerItem>,
-            initialIndex: Int
+            initialIndex: Int,
+            vertical: Boolean = false
         ): Intent {
             return Intent(context, MediaViewerActivity::class.java).apply {
                 putExtra(EXTRA_MODE, MODE_GALLERY)
@@ -98,6 +101,7 @@ class MediaViewerActivity : ComponentActivity() {
                 putExtra(EXTRA_PORT, port)
                 putExtra(EXTRA_GALLERY_ITEMS_JSON, MediaViewerItem.listToJson(items))
                 putExtra(EXTRA_INITIAL_INDEX, initialIndex)
+                putExtra(EXTRA_VERTICAL, vertical)
             }
         }
 
@@ -227,7 +231,8 @@ class MediaViewerActivity : ComponentActivity() {
             port = port,
             mode = ViewerMode.GALLERY,
             items = items,
-            initialIndex = initialIndex
+            initialIndex = initialIndex,
+            vertical = intent.getBooleanExtra(EXTRA_VERTICAL, false)
         )
     }
 

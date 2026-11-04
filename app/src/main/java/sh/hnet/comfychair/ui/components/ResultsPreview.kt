@@ -1,5 +1,6 @@
 package sh.hnet.comfychair.ui.components
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -108,6 +109,7 @@ import sh.hnet.comfychair.R
 import sh.hnet.comfychair.cache.MediaCache
 import sh.hnet.comfychair.cache.MediaCacheKey
 import sh.hnet.comfychair.cache.ResultThumbnails
+import sh.hnet.comfychair.repository.GalleryRepository
 import sh.hnet.comfychair.ui.components.shared.CircleArrowButton
 import sh.hnet.comfychair.util.GenerationOutput
 import sh.hnet.comfychair.viewmodel.MediaViewerItem
@@ -545,6 +547,35 @@ fun rememberResultsViewer(
         }
         launcher.launch(MediaViewerActivity.createGalleryIntent(context, hostname, port, items, index))
     }
+}
+
+/**
+ * Opens the full-screen viewer over the server history (the same list as the gallery), paging
+ * up and down, positioned on the image named [filename].
+ *
+ * Returns false when that image isn't in the history (not loaded yet, offline, ...), so the caller
+ * can fall back to the single-image viewer.
+ */
+fun openHistoryViewer(
+    context: Context,
+    hostname: String,
+    port: Int,
+    filename: String?,
+    subfolder: String?
+): Boolean {
+    if (filename.isNullOrEmpty()) return false
+    val history = GalleryRepository.getInstance().galleryItems.value
+    val index = history.indexOfFirst {
+        it.filename == filename && (subfolder == null || it.subfolder == subfolder)
+    }
+    if (index < 0) return false
+    val items = history.map {
+        MediaViewerItem(it.promptId, it.filename, it.subfolder, it.type, it.isVideo, it.index)
+    }
+    context.startActivity(
+        MediaViewerActivity.createGalleryIntent(context, hostname, port, items, index, vertical = true)
+    )
+    return true
 }
 
 /** Screens a generated image can be sent to as their source image. */

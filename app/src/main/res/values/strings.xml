@@ -704,4 +704,13 @@
 
     <!-- Metadata actions -->
     <string name="metadata_save_prompt">Save prompt to library</string>
+
+    <!-- Tag suggestions in the prompt field -->
+    <string name="tag_suggestions_show_all">Show all suggestions</string>
+    <string name="tag_suggestions_hide">Hide suggestions</string>
+    <string name="tag_suggestions_download">Download full tag list</string>
+    <string name="tag_suggestions_downloading">Downloading…</string>
+    <string name="tag_suggestions_download_ok">Tag list downloaded</string>
+    <string name="tag_suggestions_download_failed">Could not download the tag list</string>
+
 </resources>

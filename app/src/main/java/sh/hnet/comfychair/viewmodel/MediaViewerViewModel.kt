@@ -109,7 +109,9 @@ data class MediaViewerUiState(
     val isUiVisible: Boolean = true,
     val isLoading: Boolean = false,
     val currentBitmap: Bitmap? = null,
-    val currentVideoUri: Uri? = null
+    val currentVideoUri: Uri? = null,
+    /** Gallery mode pages vertically (swipe up/down) instead of horizontally. */
+    val isVertical: Boolean = false
 ) {
     val currentItem: MediaViewerItem?
         get() = items.getOrNull(currentIndex)
@@ -166,7 +168,8 @@ class MediaViewerViewModel : ViewModel() {
         items: List<MediaViewerItem>,
         initialIndex: Int,
         singleBitmap: Bitmap? = null,
-        singleVideoUri: Uri? = null
+        singleVideoUri: Uri? = null,
+        vertical: Boolean = false
     ) {
         applicationContext = context.applicationContext
 
@@ -176,7 +179,8 @@ class MediaViewerViewModel : ViewModel() {
             currentIndex = initialIndex.coerceIn(0, (items.size - 1).coerceAtLeast(0)),
             currentBitmap = singleBitmap,
             currentVideoUri = singleVideoUri,
-            isLoading = mode == ViewerMode.GALLERY && items.isNotEmpty()
+            isLoading = mode == ViewerMode.GALLERY && items.isNotEmpty(),
+            isVertical = vertical
         )
 
         // For gallery mode, set up priorities and load current item

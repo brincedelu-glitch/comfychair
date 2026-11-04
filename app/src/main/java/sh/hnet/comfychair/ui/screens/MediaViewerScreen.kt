@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -152,11 +153,12 @@ fun MediaViewerScreen(
                                 }
                         }
 
-                        HorizontalPager(
-                            state = pagerState,
-                            modifier = Modifier.fillMaxSize(),
-                            key = { index -> "${uiState.items[index].promptId}_${uiState.items[index].filename}" }
-                        ) { page ->
+                        val pageKey: (Int) -> Any = { index ->
+                            "${uiState.items[index].promptId}_${uiState.items[index].filename}"
+                        }
+
+                        // Same page content for both paging directions
+                        val pageContent: @Composable (Int) -> Unit = { page ->
                             val item = uiState.items[page]
                             val isCurrentPage = page == pagerState.currentPage
                             val cacheKey = MediaCacheKey(item.promptId, item.filename)
@@ -196,9 +198,25 @@ fun MediaViewerScreen(
                             }
                         }
 
-                        // Navigation arrows need pagerState, so move them inside
+                        if (uiState.isVertical) {
+                            VerticalPager(
+                                state = pagerState,
+                                modifier = Modifier.fillMaxSize(),
+                                key = pageKey
+                            ) { page -> pageContent(page) }
+                        } else {
+                            HorizontalPager(
+                                state = pagerState,
+                                modifier = Modifier.fillMaxSize(),
+                                key = pageKey
+                            ) { page -> pageContent(page) }
+                        }
+
+                        // Navigation arrows need pagerState, so move them inside.
+                        // Left/right arrows only make sense for horizontal paging; vertical
+                        // paging is done by swiping up/down.
                         // Left navigation arrow
-                        if (uiState.totalCount > 1) {
+                        if (uiState.totalCount > 1 && !uiState.isVertical) {
                             AnimatedVisibility(
                                 visible = uiState.isUiVisible && uiState.currentIndex > 0,
                                 enter = fadeIn(animationSpec = tween(250)),

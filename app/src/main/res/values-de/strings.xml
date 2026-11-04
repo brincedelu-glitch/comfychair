@@ -671,4 +671,13 @@
 
     <!-- Metadata actions -->
     <string name="metadata_save_prompt">Prompt in Bibliothek speichern</string>
+
+    <!-- Tag-Vorschläge im Prompt-Feld -->
+    <string name="tag_suggestions_show_all">Alle Vorschläge anzeigen</string>
+    <string name="tag_suggestions_hide">Vorschläge ausblenden</string>
+    <string name="tag_suggestions_download">Vollständige Tag-Liste herunterladen</string>
+    <string name="tag_suggestions_downloading">Wird heruntergeladen…</string>
+    <string name="tag_suggestions_download_ok">Tag-Liste heruntergeladen</string>
+    <string name="tag_suggestions_download_failed">Tag-Liste konnte nicht heruntergeladen werden</string>
+
 </resources>

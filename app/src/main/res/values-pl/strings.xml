@@ -685,4 +685,13 @@
 
     <!-- Metadata actions -->
     <string name="metadata_save_prompt">Zapisz prompt do biblioteki</string>
+
+    <!-- Podpowiedzi tagów w polu promptu -->
+    <string name="tag_suggestions_show_all">Pokaż wszystkie podpowiedzi</string>
+    <string name="tag_suggestions_hide">Ukryj podpowiedzi</string>
+    <string name="tag_suggestions_download">Pobierz pełną listę tagów</string>
+    <string name="tag_suggestions_downloading">Pobieranie…</string>
+    <string name="tag_suggestions_download_ok">Pobrano listę tagów</string>
+    <string name="tag_suggestions_download_failed">Nie udało się pobrać listy tagów</string>
+
 </resources>

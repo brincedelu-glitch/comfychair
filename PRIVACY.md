@@ -46,6 +46,8 @@ ComfyChair does not integrate any third-party services such as:
 - Crash reporting services
 - Social media SDKs
 
+The one exception is optional and only happens when you ask for it. The tag suggestions in the prompt field work from a small built-in list. If you tap "Download full tag list", the app fetches a public list of booru tag names (a CSV file) from `raw.githubusercontent.com`, a GitHub server, and stores it on your device. Nothing from your prompts, servers or settings is sent with that request; like any web request, it lets GitHub see your IP address. Suggestions are always searched on your device.
+
 ## Data Security
 
 - All local data is stored using Android's private storage mechanisms

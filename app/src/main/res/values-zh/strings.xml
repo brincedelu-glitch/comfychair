@@ -667,4 +667,13 @@
 
     <!-- Metadata actions -->
     <string name="metadata_save_prompt">保存提示词到库</string>
+
+    <!-- 提示词输入框中的标签建议 -->
+    <string name="tag_suggestions_show_all">显示全部建议</string>
+    <string name="tag_suggestions_hide">隐藏建议</string>
+    <string name="tag_suggestions_download">下载完整标签列表</string>
+    <string name="tag_suggestions_downloading">正在下载…</string>
+    <string name="tag_suggestions_download_ok">标签列表已下载</string>
+    <string name="tag_suggestions_download_failed">无法下载标签列表</string>
+
 </resources>

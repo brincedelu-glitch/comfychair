@@ -679,4 +679,13 @@
 
     <!-- Metadata actions -->
     <string name="metadata_save_prompt">Guardar prompt en la biblioteca</string>
+
+    <!-- Sugerencias de etiquetas en el campo de prompt -->
+    <string name="tag_suggestions_show_all">Mostrar todas las sugerencias</string>
+    <string name="tag_suggestions_hide">Ocultar sugerencias</string>
+    <string name="tag_suggestions_download">Descargar la lista completa de etiquetas</string>
+    <string name="tag_suggestions_downloading">Descargando…</string>
+    <string name="tag_suggestions_download_ok">Lista de etiquetas descargada</string>
+    <string name="tag_suggestions_download_failed">No se pudo descargar la lista de etiquetas</string>
+
 </resources>
