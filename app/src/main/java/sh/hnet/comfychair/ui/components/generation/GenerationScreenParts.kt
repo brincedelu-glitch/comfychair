@@ -68,8 +68,11 @@ import sh.hnet.comfychair.ui.components.config.BottomSheetConfig
 import sh.hnet.comfychair.ui.components.config.CommonGenerationState
 import sh.hnet.comfychair.ui.components.config.ConfigBottomSheetContent
 import sh.hnet.comfychair.ui.components.config.UnifiedCallbacks
+import sh.hnet.comfychair.ui.components.shared.DoubleTapClearButton
 import sh.hnet.comfychair.ui.components.shared.PromptPresetDropdown
+import sh.hnet.comfychair.ui.components.shared.TagSuggestionBar
 import sh.hnet.comfychair.ui.components.shared.rememberSpellCheckVisualTransformation
+import sh.hnet.comfychair.ui.components.shared.rememberTagPromptState
 import sh.hnet.comfychair.viewmodel.ContentType
 import sh.hnet.comfychair.viewmodel.GenerationScreenEvent
 import sh.hnet.comfychair.viewmodel.GenerationViewModel
@@ -184,6 +187,7 @@ class PromptInputState(
     val spellCheckEnabled: Boolean,
     val transformation: VisualTransformation,
     val expanded: Boolean,
+    val focused: Boolean,
     val onFocusChange: (Boolean) -> Unit
 )
 
@@ -213,7 +217,7 @@ fun rememberPromptInputState(prompt: String): PromptInputState {
     var focused by remember { mutableStateOf(false) }
     val expanded = expandEnabled && focused && imeHeight > 0 && imeHeight >= prevImeHeight
 
-    return PromptInputState(spellCheckEnabled, transformation, expanded) { focused = it }
+    return PromptInputState(spellCheckEnabled, transformation, expanded, focused) { focused = it }
 }
 
 /**
@@ -284,11 +288,18 @@ fun ColumnScope.PositivePromptField(
     presetViewModel: PromptPresetViewModel,
     presetUiState: PromptPresetUiState
 ) {
+    // Text and cursor of the field (for the tag autocompletion); follows the ViewModel's prompt
+    val promptState = rememberTagPromptState(prompt)
     OutlinedTextField(
-        value = prompt,
+        value = promptState.value,
         onValueChange = {
-            onPromptChange(it)
-            presetViewModel.clearActivePreset()
+            // The field also reports cursor moves; only a text change updates the prompt
+            val textChanged = it.text != promptState.value.text
+            promptState.value = it
+            if (textChanged) {
+                onPromptChange(it.text)
+                presetViewModel.clearActivePreset()
+            }
         },
         label = { Text(stringResource(R.string.hint_prompt)) },
         modifier = Modifier
@@ -313,14 +324,22 @@ fun ColumnScope.PositivePromptField(
         },
         trailingIcon = {
             if (prompt.isNotEmpty()) {
-                IconButton(onClick = {
+                // Double tap only, so a stray tap can't wipe the prompt
+                DoubleTapClearButton(onClear = {
                     onPromptChange("")
                     presetViewModel.clearActivePreset()
-                }) {
-                    Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.content_description_clear))
-                }
+                })
             }
         }
+    )
+    TagSuggestionBar(
+        state = promptState,
+        visible = input.focused,
+        onTextChanged = {
+            onPromptChange(it)
+            presetViewModel.clearActivePreset()
+        },
+        modifier = Modifier.padding(horizontal = 16.dp)
     )
 }
 
