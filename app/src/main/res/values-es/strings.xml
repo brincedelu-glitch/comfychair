@@ -688,4 +688,11 @@
     <string name="tag_suggestions_download_ok">Lista de etiquetas descargada</string>
     <string name="tag_suggestions_download_failed">No se pudo descargar la lista de etiquetas</string>
 
+    <!-- Random prompt (dice button) -->
+    <string name="content_description_random_prompt">Prompt aleatorio (pulsación larga: longitud)</string>
+    <string name="random_prompt_short">Corto</string>
+    <string name="random_prompt_medium">Medio</string>
+    <string name="random_prompt_nsfw">NSFW</string>
+    <string name="random_prompt_long">Largo</string>
+
 </resources>

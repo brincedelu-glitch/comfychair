@@ -19,6 +19,11 @@ android {
     }
 
     buildTypes {
+        // Debug builds install next to the regular app: own application id and own name
+        debug {
+            applicationIdSuffix = ".test"
+            versionNameSuffix = "-test"
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(

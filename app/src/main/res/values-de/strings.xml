@@ -680,4 +680,11 @@
     <string name="tag_suggestions_download_ok">Tag-Liste heruntergeladen</string>
     <string name="tag_suggestions_download_failed">Tag-Liste konnte nicht heruntergeladen werden</string>
 
+    <!-- Random prompt (dice button) -->
+    <string name="content_description_random_prompt">Zufalls-Prompt (lang drücken: Länge)</string>
+    <string name="random_prompt_short">Kurz</string>
+    <string name="random_prompt_medium">Mittel</string>
+    <string name="random_prompt_nsfw">NSFW</string>
+    <string name="random_prompt_long">Lang</string>
+
 </resources>

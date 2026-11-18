@@ -676,4 +676,11 @@
     <string name="tag_suggestions_download_ok">标签列表已下载</string>
     <string name="tag_suggestions_download_failed">无法下载标签列表</string>
 
+    <!-- Random prompt (dice button) -->
+    <string name="content_description_random_prompt">随机提示词（长按选择长度）</string>
+    <string name="random_prompt_short">短</string>
+    <string name="random_prompt_medium">中</string>
+    <string name="random_prompt_nsfw">NSFW</string>
+    <string name="random_prompt_long">长</string>
+
 </resources>

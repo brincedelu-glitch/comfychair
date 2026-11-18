@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Debug builds are installed next to the regular app, so they get their own name -->
+    <string name="app_name" translatable="false">ComfyChair TEST</string>
+</resources>

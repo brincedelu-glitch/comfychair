@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.onFocusChanged
@@ -69,6 +70,7 @@ import sh.hnet.comfychair.ui.components.config.CommonGenerationState
 import sh.hnet.comfychair.ui.components.config.ConfigBottomSheetContent
 import sh.hnet.comfychair.ui.components.config.UnifiedCallbacks
 import sh.hnet.comfychair.ui.components.shared.DoubleTapClearButton
+import sh.hnet.comfychair.ui.components.shared.RandomPromptButton
 import sh.hnet.comfychair.ui.components.shared.PromptPresetDropdown
 import sh.hnet.comfychair.ui.components.shared.TagSuggestionBar
 import sh.hnet.comfychair.ui.components.shared.rememberSpellCheckVisualTransformation
@@ -323,12 +325,21 @@ fun ColumnScope.PositivePromptField(
             )
         },
         trailingIcon = {
-            if (prompt.isNotEmpty()) {
-                // Double tap only, so a stray tap can't wipe the prompt
-                DoubleTapClearButton(onClear = {
-                    onPromptChange("")
-                    presetViewModel.clearActivePreset()
-                })
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RandomPromptButton(
+                    state = promptState,
+                    onTextChanged = {
+                        onPromptChange(it)
+                        presetViewModel.clearActivePreset()
+                    }
+                )
+                if (prompt.isNotEmpty()) {
+                    // Double tap only, so a stray tap can't wipe the prompt
+                    DoubleTapClearButton(onClear = {
+                        onPromptChange("")
+                        presetViewModel.clearActivePreset()
+                    })
+                }
             }
         }
     )

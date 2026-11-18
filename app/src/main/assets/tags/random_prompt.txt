@@ -1,0 +1,156 @@
+# Vocabulary of the random prompt (dice button).
+#
+# [common] holds slots that suit any scene. Each [theme name] section holds the slots that must stay
+# coherent with each other (outfit, background, props): one theme is picked per roll, so a school
+# uniform ends up in a classroom, not on a beach.
+# A theme's lighting replaces the common one (no moonlight over a sunny beach).
+# One line = one slot: "slot: tag, tag*3, tag". "*3" makes a tag three times more likely.
+# Spaces, not underscores. A roll takes at most one tag per slot (props: two or three).
+
+[common]
+subject: 1girl*8, 1boy, 2girls
+hair_color: black hair, brown hair, blonde hair, red hair, blue hair, pink hair, silver hair, white hair, purple hair, green hair, orange hair, grey hair, aqua hair
+hair_length: long hair*3, short hair*2, medium hair*2, very long hair
+hair_style: ponytail, twintails, braid, side ponytail, hair bun, messy hair, straight hair, wavy hair, ahoge, hair over one eye, side braid, low twintails, half updo
+eyes: blue eyes, red eyes, green eyes, brown eyes, purple eyes, yellow eyes, golden eyes, pink eyes, aqua eyes, orange eyes
+expression: smile*4, light smile*2, open mouth, :d, blush, closed eyes, serious, embarrassed, surprised, parted lips
+gaze: looking at viewer*4, looking away, looking to the side, looking back, looking up
+pose: standing*3, sitting*3, arms behind back, hand on own hip, hand up, waving, leaning forward, walking, arms up, head tilt, crossed arms, kneeling, hand on own chin
+framing: upper body*3, cowboy shot*3, full body*2, portrait, close-up, from side, from above, from below, from behind, dutch angle
+lighting: sunlight, backlighting, soft lighting, dramatic lighting, rim lighting, moonlight, depth of field, lens flare, light rays
+mood: warm colors, cool colors, colorful, bloom, sparkle, light particles
+accessory: hair ribbon, hairband, earrings, choker, glasses, necklace, hair ornament, hairclip, hair flower, bracelet
+
+[theme school]
+outfit: school uniform*3, serafuku*2, blazer, cardigan, sweater, gym uniform
+background: classroom*3, rooftop, hallway, school, indoors
+prop: desk, school bag, book, chalkboard, window, cherry blossoms, school desk, notebook
+lighting: sunlight, soft lighting, backlighting, light rays, sunset, depth of field
+
+[theme casual]
+outfit: hoodie, sweater, t-shirt, jacket, sundress, jeans, denim shorts, white shirt, off shoulder, skirt
+background: city, street, park, cafe, alley, bridge, train station, convenience store
+prop: cup, umbrella, smartphone, headphones, backpack, bicycle, ice cream, shopping bag
+lighting: sunlight, soft lighting, backlighting, sunset, depth of field, lens flare
+
+[theme beach]
+outfit: bikini*3, one-piece swimsuit, sundress, white dress, swimsuit, sarong
+background: beach*3, ocean, poolside, pier, horizon, sky
+prop: palm tree, beach ball, sand, waves, seashell, sun hat, sunglasses, water drop, wet, innertube
+lighting: sunlight*3, sunset, backlighting, lens flare, light rays
+
+[theme fantasy]
+outfit: armor, long dress, gown, cloak, robe, corset, puffy sleeves, cape
+background: forest*2, castle, ruins, cave, night sky, field, garden, temple
+prop: sword, staff, magic circle, glowing, butterfly, flower, crown, wings, fantasy
+lighting: dramatic lighting, moonlight, light rays, glowing, rim lighting, backlighting
+
+[theme maid]
+outfit: maid*4, apron, frills
+background: cafe, mansion, kitchen, living room, restaurant, indoors
+prop: tray, teapot, teacup, cake, flower, candle, maid headdress
+lighting: soft lighting, sunlight, backlighting, depth of field
+
+[theme winter]
+outfit: coat, winter clothes, sweater, fur trim, jacket, turtleneck, scarf
+background: snow*2, snowing, winter, night, christmas, street
+prop: mittens, gloves, earmuffs, snowman, gift, christmas tree, breath, cup
+lighting: soft lighting, backlighting, moonlight, light rays, depth of field
+
+[theme japanese]
+outfit: kimono*3, yukata*2, obi, hakama, japanese clothes, miko
+background: shrine*2, torii, festival, east asian architecture, bamboo, night, lantern
+prop: paper lantern, folding fan, oil-paper umbrella, goldfish, cherry blossoms, fireworks, hair stick
+lighting: sunset, moonlight, backlighting, soft lighting, light rays
+
+[theme night]
+outfit: jacket, leather jacket, hoodie, bodysuit, trench coat, black dress
+background: night, city lights, cityscape, neon lights, rain, rooftop, alley
+prop: umbrella, headphones, motorcycle, smartphone, cyberpunk, lens flare
+lighting: dramatic lighting, rim lighting, backlighting, lens flare, depth of field
+
+[theme home]
+outfit: pajamas, oversized shirt, sweater, cardigan, camisole, t-shirt, hoodie
+background: bedroom*2, living room, kitchen, balcony, indoors, window
+prop: pillow, stuffed animal, book, cup, blanket, cat, laptop, bed
+lighting: soft lighting, sunlight, backlighting, depth of field, light rays
+
+[theme garden]
+outfit: sundress*2, white dress, dress, straw hat, skirt, blouse
+background: flower field*2, garden, grass, blue sky, cloud, river, field
+prop: flower, butterfly, basket, bicycle, sunflower, petals, wind
+lighting: sunlight*3, soft lighting, backlighting, lens flare, light rays, sunset
+
+# ---------------------------------------------------------------------------------------------
+# NSFW mode (adult characters only). Only used when "NSFW" is ticked in the dice menu: then the
+# [theme ... nsfw] sections replace the themes above, and [nsfw] replaces the matching common slots.
+# "partner" is an extra person added to the scene; "detail" is a free slot for body/scene details.
+# ---------------------------------------------------------------------------------------------
+
+[nsfw]
+body: large breasts*4, medium breasts*2, small breasts, huge breasts, curvy, wide hips, thick thighs, slim, toned
+expression: blush*4, embarrassed, half-closed eyes, parted lips, open mouth, heavy breathing, tongue out, seductive smile, naughty face, drooling, heart-shaped pupils, licking lips, lip biting, ahegao
+framing: cowboy shot*3, upper body, full body*2, from above, from below, from behind, close-up, pov, foreshortening, from side
+lighting: soft lighting, backlighting, rim lighting, sunlight, moonlight, depth of field, bloom, steam
+mood: warm colors, bloom, heart, light particles
+detail: sweat*2, nipples, navel, cleavage, thighs, collarbone, wet, saliva, blush stickers
+
+[theme lingerie nsfw]
+subject: 1girl
+outfit: lingerie*3, bra, panties, garter belt, thighhighs, negligee, babydoll, see-through, lace-trimmed panties, underwear only, bikini
+pose: sitting, lying*2, on back, on bed*2, all fours, arms behind head, spread legs, kneeling, on side, bent over, hand on own thigh, leaning forward
+background: bedroom*3, bed, hotel room, indoors, window
+prop: pillow, bedsheet, blanket, curtains, candle, wine glass
+lighting: soft lighting, dim lighting, backlighting, moonlight, rim lighting
+detail: cleavage, navel, thighs, sweat, panty pull, bra pull, strap slip, hand on own chest
+
+[theme nude nsfw]
+subject: 1girl
+outfit: nude*4, topless, bottomless, naked shirt, naked apron, naked towel, completely nude, nude cover
+pose: spread legs*2, on back*2, all fours, lying, sitting, arms behind head, squatting, kneeling, hand between legs, masturbation, fingering, presenting, on bed
+background: bedroom*3, bed, bathroom, hotel room, onsen, indoors
+prop: bedsheet, pillow, towel, sex toy, vibrator, steam, wet
+detail: nipples*2, pussy*2, navel, sweat*2, spread pussy, pussy juice, cum, uncensored, pubic hair, saliva, ass, anus
+
+[theme bath nsfw]
+subject: 1girl
+outfit: nude*3, naked towel, towel, wet clothes, wet shirt, wet, see-through, bikini
+pose: sitting, kneeling, standing, leaning forward, arms up, from behind, bent over, looking back
+background: bathroom*3, shower*2, onsen*2, bathtub, indoors, steam
+prop: steam, soap bubbles, water, wet hair, towel, rubber duck, shower head, water drop
+detail: wet*2, sweat, nipples, navel, collarbone, cleavage, thighs, ass
+
+[theme couple nsfw]
+subject: 1girl
+partner: 1boy
+outfit: nude*3, topless, open clothes, clothed sex, partially undressed, panties aside, torn clothes, naked shirt
+pose: missionary*2, cowgirl position*2, girl on top, doggystyle*2, sex from behind, reverse cowgirl position, spooning, standing sex, prone bone, mating press, straddling, legs up, lying, on back
+background: bedroom*3, bed*2, hotel room, couch, love hotel, indoors
+prop: pillow, bedsheet, condom, sex toy, vibrator, wet
+expression: blush*3, heavy breathing*2, open mouth*2, ahegao, heart-shaped pupils, half-closed eyes, drooling, tongue out, moaning, orgasm, crying with eyes open
+detail: sex*3, vaginal*2, penis*2, hetero*2, cum*2, cum in pussy, cum on body, cum on breasts, cum on face, sweat*2, nipples, pussy, uncensored, saliva, motion lines, bouncing breasts, pov, pussy juice, spread legs
+
+[theme yuri nsfw]
+subject: 2girls
+partner: yuri
+outfit: nude*3, lingerie, topless, panties, bikini, naked shirt, underwear only
+pose: kiss*2, french kiss, symmetrical docking, tribadism, fingering, grabbing another's breast, hug*2, lying*2, on bed, face-to-face, hand on another's face, straddling, all fours, spooning
+background: bedroom*3, bed*2, hotel room, bathroom, indoors
+prop: pillow, bedsheet, steam, candle, wine glass
+detail: blush stickers, saliva, saliva trail, nipples*2, sweat*2, navel, thighs, cleavage, pussy, heart, spread legs, wet
+
+[theme cosplay nsfw]
+subject: 1girl
+outfit: maid*2, nurse*2, bunnysuit*2, playboy bunny, school swimsuit, gym uniform, cheerleader, santa costume, naked apron, microskirt, serafuku, school uniform, race queen, bikini armor, china dress, sailor collar
+pose: bent over*2, skirt lift*2, lifted by self, looking back*2, leaning forward, from behind, arms behind back, sitting, spread legs, hand on own hip, presenting
+background: bedroom*2, classroom, office, infirmary, locker room, bar, hotel room, kitchen, indoors
+prop: stockings, thighhighs, garter straps, choker, cat ears, tail, stethoscope, tray, desk
+detail: panties*2, pantyshot*2, cleavage*2, ass*2, thighs*2, no panties, upskirt, sweat, navel, underboob, sideboob, covered nipples, cameltoe
+
+[theme bdsm nsfw]
+subject: 1girl
+outfit: latex*2, leather*2, bodysuit, harness*2, thigh strap, corset, bondage outfit, fishnets, thighhighs, elbow gloves, nude
+pose: kneeling*2, all fours, arms behind back*2, bound wrists, on bed, standing, bent over, spread legs, on back
+background: bedroom*2, dungeon*2, indoors, hotel room, dark
+prop: collar*2, leash, handcuffs*2, rope*2, blindfold, riding crop, chain, candle, shibari
+detail: sweat*2, blush, nipples, navel, saliva, cleavage, thighs, bdsm*2, bondage, restrained, ass, wet

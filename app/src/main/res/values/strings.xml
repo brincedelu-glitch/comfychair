@@ -713,4 +713,11 @@
     <string name="tag_suggestions_download_ok">Tag list downloaded</string>
     <string name="tag_suggestions_download_failed">Could not download the tag list</string>
 
+    <!-- Random prompt (dice button) -->
+    <string name="content_description_random_prompt">Random prompt (long press: length)</string>
+    <string name="random_prompt_short">Short</string>
+    <string name="random_prompt_medium">Medium</string>
+    <string name="random_prompt_nsfw">NSFW</string>
+    <string name="random_prompt_long">Long</string>
+
 </resources>

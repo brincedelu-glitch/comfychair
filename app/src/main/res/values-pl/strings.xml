@@ -694,4 +694,11 @@
     <string name="tag_suggestions_download_ok">Pobrano listę tagów</string>
     <string name="tag_suggestions_download_failed">Nie udało się pobrać listy tagów</string>
 
+    <!-- Random prompt (dice button) -->
+    <string name="content_description_random_prompt">Losowy prompt (długie naciśnięcie: długość)</string>
+    <string name="random_prompt_short">Krótki</string>
+    <string name="random_prompt_medium">Średni</string>
+    <string name="random_prompt_nsfw">NSFW</string>
+    <string name="random_prompt_long">Długi</string>
+
 </resources>

@@ -37,7 +37,10 @@ object TagIndex {
         val aliases: Array<String>,
         val categories: ByteArray,
         val counts: IntArray
-    )
+    ) {
+        /** Tag names for exact lookups, built on first use. */
+        val nameSet: Set<String> by lazy { names.toHashSet() }
+    }
 
     @Volatile private var data: Data? = null
 
@@ -159,6 +162,25 @@ object TagIndex {
             )
         }
         return true
+    }
+
+    /**
+     * Whether the tag named exactly [name] (lowercase, underscores) is in the list. With only the
+     * starter list loaded there is no way to tell, so every tag counts as existing.
+     */
+    fun exists(name: String): Boolean {
+        val loaded = data ?: return true
+        if (isStarterList) return true
+        return name in loaded.nameSet
+    }
+
+    /** Booru category of the tag named exactly [name] (lowercase, underscores), null if unknown. */
+    fun categoryOf(name: String): Int? {
+        val loaded = data ?: return null
+        for (i in loaded.names.indices) {
+            if (loaded.names[i] == name) return loaded.categories[i].toInt()
+        }
+        return null
     }
 
     /**
