@@ -37,11 +37,11 @@ import sh.hnet.comfychair.util.TagIndex
 private const val CHARACTER_CATEGORY = 4
 
 /**
- * Dice button of a prompt field. A tap completes the prompt with random tags (the typed text stays
- * as it is); tapping again rerolls only the tags added by the previous roll. A long press chooses
- * how long the completion is.
- *
- * Editing the text after a roll locks the added tags in: they become part of what is typed.
+ * Dice button of a prompt field. A double tap completes the prompt with random tags (the typed text
+ * stays as it is); another double tap rerolls only the tags added by the previous roll, even after
+ * the text was edited in between: tags the user typed since stay, the dice's own tags are rerolled.
+ * A single tap does nothing, so a stray tap can't replace the prompt. A long press chooses the
+ * length and the NSFW mode.
  *
  * @param onTextChanged Called with the new prompt text after a roll
  */
@@ -57,14 +57,17 @@ fun RandomPromptButton(
     var length by rememberSaveable { mutableStateOf(RandomPrompt.Length.MEDIUM) }
     var nsfw by rememberSaveable { mutableStateOf(false) }
     var menuOpen by remember { mutableStateOf(false) }
-    // What the last roll started from and produced, to reroll without keeping its own tags
-    var lastBase by remember { mutableStateOf("") }
-    var lastResult by remember { mutableStateOf<String?>(null) }
+    // The tags added by the last roll (normalized), taken out again before the next one
+    var lastAdded by remember { mutableStateOf<Set<String>>(emptySet()) }
 
     fun roll(chosen: RandomPrompt.Length) {
         scope.launch {
-            val current = state.value.text
-            val base = if (lastResult != null && lastResult == current) lastBase else current
+            // Everything typed except what the dice added before
+            val base = state.value.text
+                .split(',', '\n')
+                .map { it.trim() }
+                .filter { it.isNotEmpty() && RandomPrompt.normalize(it) !in lastAdded }
+                .joinToString(", ")
             val vocabulary = RandomPrompt.ensureLoaded(context)
             TagIndex.ensureLoaded(context)
             val result = withContext(Dispatchers.Default) {
@@ -78,10 +81,9 @@ fun RandomPromptButton(
                     exists = { TagIndex.exists(it) }
                 )
             }
-            lastBase = base
-            lastResult = result
-            state.value = TextFieldValue(result, TextRange(result.length))
-            onTextChanged(result)
+            lastAdded = result.added.map { RandomPrompt.normalize(it) }.toSet()
+            state.value = TextFieldValue(result.text, TextRange(result.text.length))
+            onTextChanged(result.text)
         }
     }
 
@@ -90,7 +92,11 @@ fun RandomPromptButton(
         Box(
             modifier = Modifier
                 .size(48.dp)
-                .combinedClickable(onClick = { roll(length) }, onLongClick = { menuOpen = true }),
+                .combinedClickable(
+                    onClick = {},
+                    onDoubleClick = { roll(length) },
+                    onLongClick = { menuOpen = true }
+                ),
             contentAlignment = Alignment.Center
         ) {
             Icon(

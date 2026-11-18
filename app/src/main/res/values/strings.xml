@@ -714,10 +714,18 @@
     <string name="tag_suggestions_download_failed">Could not download the tag list</string>
 
     <!-- Random prompt (dice button) -->
-    <string name="content_description_random_prompt">Random prompt (long press: length)</string>
+    <string name="content_description_random_prompt">Random prompt (double tap; long press: options)</string>
     <string name="random_prompt_short">Short</string>
     <string name="random_prompt_medium">Medium</string>
     <string name="random_prompt_nsfw">NSFW</string>
     <string name="random_prompt_long">Long</string>
+
+    <!-- Artist selection in the generation options -->
+    <string name="artist_label">Artist</string>
+    <string name="artist_none">None</string>
+    <string name="artist_random">Random</string>
+    <string name="artist_choose">Choose…</string>
+    <string name="artist_search">Search artist</string>
+    <string name="artist_no_result">No artist found</string>
 
 </resources>

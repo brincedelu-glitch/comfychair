@@ -681,10 +681,18 @@
     <string name="tag_suggestions_download_failed">Tag-Liste konnte nicht heruntergeladen werden</string>
 
     <!-- Random prompt (dice button) -->
-    <string name="content_description_random_prompt">Zufalls-Prompt (lang drücken: Länge)</string>
+    <string name="content_description_random_prompt">Zufalls-Prompt (doppelt tippen; lang drücken: Optionen)</string>
     <string name="random_prompt_short">Kurz</string>
     <string name="random_prompt_medium">Mittel</string>
     <string name="random_prompt_nsfw">NSFW</string>
     <string name="random_prompt_long">Lang</string>
+
+    <!-- Artist selection in the generation options -->
+    <string name="artist_label">Künstler</string>
+    <string name="artist_none">Keiner</string>
+    <string name="artist_random">Zufällig</string>
+    <string name="artist_choose">Auswählen…</string>
+    <string name="artist_search">Künstler suchen</string>
+    <string name="artist_no_result">Kein Künstler gefunden</string>
 
 </resources>

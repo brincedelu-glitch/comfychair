@@ -689,10 +689,18 @@
     <string name="tag_suggestions_download_failed">No se pudo descargar la lista de etiquetas</string>
 
     <!-- Random prompt (dice button) -->
-    <string name="content_description_random_prompt">Prompt aleatorio (pulsación larga: longitud)</string>
+    <string name="content_description_random_prompt">Prompt aleatorio (doble toque; pulsación larga: opciones)</string>
     <string name="random_prompt_short">Corto</string>
     <string name="random_prompt_medium">Medio</string>
     <string name="random_prompt_nsfw">NSFW</string>
     <string name="random_prompt_long">Largo</string>
+
+    <!-- Artist selection in the generation options -->
+    <string name="artist_label">Artista</string>
+    <string name="artist_none">Ninguno</string>
+    <string name="artist_random">Aleatorio</string>
+    <string name="artist_choose">Elegir…</string>
+    <string name="artist_search">Buscar artista</string>
+    <string name="artist_no_result">No se encontró ningún artista</string>
 
 </resources>

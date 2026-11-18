@@ -677,10 +677,18 @@
     <string name="tag_suggestions_download_failed">无法下载标签列表</string>
 
     <!-- Random prompt (dice button) -->
-    <string name="content_description_random_prompt">随机提示词（长按选择长度）</string>
+    <string name="content_description_random_prompt">随机提示词（双击；长按：选项）</string>
     <string name="random_prompt_short">短</string>
     <string name="random_prompt_medium">中</string>
     <string name="random_prompt_nsfw">NSFW</string>
     <string name="random_prompt_long">长</string>
+
+    <!-- Artist selection in the generation options -->
+    <string name="artist_label">画师</string>
+    <string name="artist_none">无</string>
+    <string name="artist_random">随机</string>
+    <string name="artist_choose">选择…</string>
+    <string name="artist_search">搜索画师</string>
+    <string name="artist_no_result">未找到画师</string>
 
 </resources>

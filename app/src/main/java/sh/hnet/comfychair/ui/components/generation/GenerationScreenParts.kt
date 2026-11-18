@@ -80,7 +80,9 @@ import sh.hnet.comfychair.viewmodel.GenerationScreenEvent
 import sh.hnet.comfychair.viewmodel.GenerationViewModel
 import sh.hnet.comfychair.viewmodel.PromptPresetEvent
 import sh.hnet.comfychair.viewmodel.PromptPresetUiState
+import sh.hnet.comfychair.viewmodel.ImageToImageViewModel
 import sh.hnet.comfychair.viewmodel.PromptPresetViewModel
+import sh.hnet.comfychair.viewmodel.TextToImageViewModel
 import sh.hnet.comfychair.viewmodel.base.BaseGenerationViewModel
 
 /*
@@ -553,7 +555,8 @@ fun GenerationOptionsSheet(
         ConfigBottomSheetContent(
             config = config,
             workflowName = state.selectedWorkflow,
-            spellCheckEnabled = spellCheckEnabled
+            spellCheckEnabled = spellCheckEnabled,
+            showArtistPicker = viewModel is TextToImageViewModel || viewModel is ImageToImageViewModel
         )
     }
 }

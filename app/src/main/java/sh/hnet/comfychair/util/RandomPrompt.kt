@@ -32,12 +32,16 @@ object RandomPrompt {
         /** Replaces the matching common slots in NSFW mode. */
         val nsfwCommon: Map<String, Slot> = emptyMap(),
         /** Replace the regular themes in NSFW mode. */
-        val nsfwThemes: List<Theme> = emptyList()
+        val nsfwThemes: List<Theme> = emptyList(),
+        /** Large lists (sorted out of the booru list) used next to the themes. */
+        val pool: Map<String, Slot> = emptyMap(),
+        /** Same, for NSFW mode: replaces the matching [pool] slots. */
+        val nsfwPool: Map<String, Slot> = emptyMap()
     ) {
         /** Every tag a slot can hold, over all lists (to spot filled slots). */
         val tagsBySlot: Map<String, Set<String>> by lazy {
             val result = HashMap<String, MutableSet<String>>()
-            for (slots in listOf(common, nsfwCommon)) {
+            for (slots in listOf(common, nsfwCommon, pool, nsfwPool)) {
                 for ((name, slot) in slots) result.getOrPut(name) { HashSet() }.addAll(slot.tags)
             }
             for (theme in themes + nsfwThemes) for ((name, slot) in theme.slots) {
@@ -50,11 +54,11 @@ object RandomPrompt {
     // Slots in the order they are written into the prompt, per length
     private val SHORT = listOf("subject", "hair_color", "outfit", "expression", "background")
     private val MEDIUM = listOf(
-        "subject", "hair_color", "hair_length", "eyes", "outfit", "expression", "gaze", "pose",
+        "subject", "hair_color", "hair_length", "eyes", "body", "outfit", "expression", "gaze", "pose",
         "framing", "background", "lighting"
     )
     private val LONG = listOf(
-        "subject", "hair_color", "hair_length", "hair_style", "eyes", "outfit", "accessory",
+        "subject", "hair_color", "hair_length", "hair_style", "eyes", "body", "outfit", "accessory",
         "expression", "gaze", "pose", "framing", "background", "prop", "prop", "lighting", "mood"
     )
     private val NSFW_SHORT = listOf(
@@ -76,6 +80,12 @@ object RandomPrompt {
     /** Tags ending in "eyes" that describe an expression, not the eye color. */
     private val EXPRESSION_EYES = setOf("closed eyes", "half-closed eyes", "wide eyes", "empty eyes", "covered eyes")
 
+    /** Chance of picking from the large pool rather than the scene's theme. */
+    private const val POOL_SHARE = 0.5f
+    private const val POOL_SHARE_SCENE = 0.3f
+
+    private val EMOTICONS = setOf("@_@", "^_^", ">_<", "o_o", "+_+", "=_=", "|_|", ";_;", "0_0")
+
     private val SUBJECT_REGEX = Regex("""\d+\+?(girl|girls|boy|boys|other|others)""")
 
     @Volatile private var vocabulary: Vocabulary? = null
@@ -94,6 +104,8 @@ object RandomPrompt {
     fun parse(lines: List<String>): Vocabulary {
         val common = LinkedHashMap<String, Slot>()
         val nsfwCommon = LinkedHashMap<String, Slot>()
+        val pool = LinkedHashMap<String, Slot>()
+        val nsfwPool = LinkedHashMap<String, Slot>()
         val themes = ArrayList<Theme>()
         val nsfwThemes = ArrayList<Theme>()
         var section: MutableMap<String, Slot> = common
@@ -118,7 +130,12 @@ object RandomPrompt {
                     themeName = name
                     section = LinkedHashMap()
                 } else {
-                    section = if (title == "nsfw") nsfwCommon else common
+                    section = when (title) {
+                        "nsfw" -> nsfwCommon
+                        "pool" -> pool
+                        "pool nsfw" -> nsfwPool
+                        else -> common
+                    }
                 }
                 continue
             }
@@ -140,11 +157,16 @@ object RandomPrompt {
             if (tags.isNotEmpty()) section[slotName] = Slot(tags, weights)
         }
         closeTheme()
-        return Vocabulary(common, themes, nsfwCommon, nsfwThemes)
+        return Vocabulary(common, themes, nsfwCommon, nsfwThemes, pool, nsfwPool)
     }
+
+    /** A finished roll: the whole prompt, and the tags the roll added to what was typed. */
+    class Result(val text: String, val added: List<String>)
 
     /** Comparable form of a tag: lowercase, spaces for underscores, no weight or escaping. */
     fun normalize(tag: String): String {
+        // Emoticon tags keep their underscore: "@_@" is the tag's name
+        tag.trim().lowercase().let { if (it in EMOTICONS) return it }
         var text = tag.trim().lowercase().replace('_', ' ').replace("\\(", "(").replace("\\)", ")")
         // "(blue eyes:1.2)" -> "blue eyes"; "mika (blue archive)" keeps its own parentheses
         while (text.length > 2 && isWrapped(text)) text = text.substring(1, text.length - 1).trim()
@@ -186,14 +208,14 @@ object RandomPrompt {
         nsfw: Boolean = false,
         exists: ((String) -> Boolean)? = null,
         random: Random = Random.Default
-    ): String {
+    ): Result {
         val typed = base.split(',', '\n').map { it.trim() }.filter { it.isNotEmpty() }
         val typedNormalized = typed.map { normalize(it) }.toSet()
 
         val filled = HashSet<String>()
         for ((slotName, tags) in vocab.tagsBySlot) {
-            // Props add up, a typed prop doesn't use the slot up
-            if (slotName == "prop") continue
+            // Props and details add up, a typed one doesn't use the slot up
+            if (slotName == "prop" || slotName == "detail") continue
             if (typedNormalized.any { it in tags }) filled.add(slotName)
         }
         // Tags the vocabulary doesn't list still fill a slot ("pink hair", "heterochromia"...)
@@ -227,18 +249,24 @@ object RandomPrompt {
         val added = ArrayList<String>()
         for (slotName in plan) {
             if (slotName in filled) continue
-            val slot = theme?.slots?.get(slotName)
+            val themed = theme?.slots?.get(slotName)
                 ?: (if (nsfw) vocab.nsfwCommon[slotName] else null)
                 ?: vocab.common[slotName]
-                ?: continue
-            val tag = pick(slot, used, exists, random) ?: continue
+            val pooled = (if (nsfw) vocab.nsfwPool[slotName] else null) ?: vocab.pool[slotName]
+            // The pool brings variety, the theme keeps the scene coherent
+            val share = if (slotName == "outfit" || slotName == "background") POOL_SHARE_SCENE else POOL_SHARE
+            val first = if (themed != null && pooled != null && random.nextFloat() < share) pooled else themed ?: pooled
+            val second = if (first === pooled) themed else pooled
+            val tag = (first?.let { pick(it, used, exists, random) }
+                ?: second?.let { pick(it, used, exists, random) }) ?: continue
             used.addAll(tag.split(", "))
             added.add(tag)
         }
 
-        if (added.isEmpty()) return base
+        if (added.isEmpty()) return Result(base, emptyList())
         val head = base.trim().trimEnd(',', ' ', '\n')
-        return if (head.isEmpty()) added.joinToString(", ") else head + ", " + added.joinToString(", ")
+        val text = if (head.isEmpty()) added.joinToString(", ") else head + ", " + added.joinToString(", ")
+        return Result(text, added.flatMap { it.split(", ") })
     }
 
     /** The theme the typed tags belong to, else a random one. */

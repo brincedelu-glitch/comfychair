@@ -22,6 +22,7 @@ import sh.hnet.comfychair.cache.MediaStateHolder
 import sh.hnet.comfychair.connection.ConnectionFailure
 import sh.hnet.comfychair.connection.ConnectionManager
 import sh.hnet.comfychair.ui.components.shared.WorkflowItemBase
+import sh.hnet.comfychair.util.ArtistSelection
 import sh.hnet.comfychair.util.DebugLogger
 import sh.hnet.comfychair.util.GenerationOutput
 import sh.hnet.comfychair.util.GenerationOutputs
@@ -337,7 +338,7 @@ class TextToImageViewModel : BaseGenerationViewModel<TextToImageUiState>() {
         // placeholders in the workflow will be substituted
         val baseWorkflow = WorkflowManager.prepareWorkflowById(
             workflowId = state.selectedWorkflowId,
-            positivePrompt = state.positivePrompt,
+            positivePrompt = ArtistSelection.withArtist(applicationContext, state.positivePrompt),
             negativePrompt = state.negativePrompt,
             // Model selections - workflow placeholders determine which are used
             checkpoint = state.selectedCheckpoint,

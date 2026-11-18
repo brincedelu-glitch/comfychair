@@ -30,6 +30,7 @@ import sh.hnet.comfychair.ui.components.shared.NoOverscrollContainer
 import sh.hnet.comfychair.ui.components.shared.rememberSpellCheckVisualTransformation
 import sh.hnet.comfychair.ui.components.LoraChainEditor
 import sh.hnet.comfychair.ui.components.shared.DimensionStepperRow
+import sh.hnet.comfychair.ui.components.shared.ArtistPicker
 import sh.hnet.comfychair.ui.components.shared.GenericWorkflowDropdown
 import sh.hnet.comfychair.ui.components.shared.LengthFpsRow
 import sh.hnet.comfychair.ui.components.shared.MegapixelsField
@@ -52,6 +53,7 @@ fun ConfigBottomSheetContent(
     config: BottomSheetConfig,
     workflowName: String,
     spellCheckEnabled: Boolean = false,
+    showArtistPicker: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     NoOverscrollContainer {
@@ -65,6 +67,12 @@ fun ConfigBottomSheetContent(
             // 1. Negative Prompt (at top)
             if (config.prompts.hasNegativePrompt) {
                 NegativePromptSection(config.prompts, spellCheckEnabled)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // Artist (image screens): none, random or chosen from a list
+            if (showArtistPicker) {
+                ArtistPicker()
                 Spacer(modifier = Modifier.height(16.dp))
             }
 

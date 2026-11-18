@@ -26,6 +26,7 @@ import sh.hnet.comfychair.cache.MediaStateHolder
 import sh.hnet.comfychair.connection.ConnectionFailure
 import sh.hnet.comfychair.connection.ConnectionManager
 import sh.hnet.comfychair.ui.components.shared.WorkflowItemBase
+import sh.hnet.comfychair.util.ArtistSelection
 import sh.hnet.comfychair.util.DebugLogger
 import sh.hnet.comfychair.util.GenerationOutput
 import sh.hnet.comfychair.util.GenerationOutputs
@@ -722,7 +723,7 @@ class ImageToImageViewModel : BaseGenerationViewModel<ImageToImageUiState>() {
         val p = state.editingParams
         val baseWorkflow = WorkflowManager.prepareImageEditingWorkflowById(
             workflowId = p.selectedWorkflowId,
-            positivePrompt = p.positivePrompt,
+            positivePrompt = ArtistSelection.withArtist(applicationContext, p.positivePrompt),
             negativePrompt = p.negativePrompt,
             checkpoint = p.selectedCheckpoint,
             unet = p.selectedUnet,
@@ -820,7 +821,7 @@ class ImageToImageViewModel : BaseGenerationViewModel<ImageToImageUiState>() {
         val p = state.inpaintingParams
         val baseWorkflow = WorkflowManager.prepareImageToImageWorkflowById(
             workflowId = p.selectedWorkflowId,
-            positivePrompt = p.positivePrompt,
+            positivePrompt = ArtistSelection.withArtist(applicationContext, p.positivePrompt),
             negativePrompt = p.negativePrompt,
             // Model selections - pass all, placeholder substitution handles which are used
             checkpoint = p.selectedCheckpoint,
