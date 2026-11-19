@@ -87,6 +87,9 @@ class BackupManager(private val context: Context) {
                 put("workflowValues", readWorkflowValues(servers))
                 put("userWorkflows", readUserWorkflows())
                 put("promptPresets", readPromptPresets())
+                put("loraNotes", JSONObject().apply {
+                    for ((name, text) in sh.hnet.comfychair.util.LoraNotes.all(context)) put(name, text)
+                })
             }
 
             DebugLogger.i(TAG, "Backup created successfully with ${servers.size} servers")
@@ -192,6 +195,13 @@ class BackupManager(private val context: Context) {
         // Restore prompt presets (v5+)
         json.optJSONArray("promptPresets")?.let { presets ->
             restorePromptPresets(presets)
+        }
+
+        // Restore LoRA notes
+        json.optJSONObject("loraNotes")?.let { notesJson ->
+            val imported = HashMap<String, String>()
+            for (key in notesJson.keys()) imported[key] = notesJson.optString(key, "")
+            sh.hnet.comfychair.util.LoraNotes.restore(context, imported)
         }
 
         DebugLogger.i(TAG, "Backup restore completed. Servers changed: $serversChanged, skipped workflows: $skippedWorkflows")

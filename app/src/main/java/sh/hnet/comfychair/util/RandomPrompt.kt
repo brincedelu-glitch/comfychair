@@ -17,14 +17,15 @@ import kotlin.random.Random
  */
 object RandomPrompt {
 
-    enum class Length { SHORT, MEDIUM, LONG }
+    enum class Length { SHORT, MEDIUM, LONG, XL }
 
     /** One slot's candidates with their weights. */
     class Slot(val tags: List<String>, val weights: List<Int>) {
         val totalWeight = weights.sum()
     }
 
-    class Theme(val name: String, val slots: Map<String, Slot>)
+    /** A theme; [weight] is its share of the rolls when the typed tags don't point to one. */
+    class Theme(val name: String, val slots: Map<String, Slot>, val weight: Int = 1)
 
     class Vocabulary(
         val common: Map<String, Slot>,
@@ -51,28 +52,59 @@ object RandomPrompt {
         }
     }
 
-    // Slots in the order they are written into the prompt, per length
-    private val SHORT = listOf("subject", "hair_color", "outfit", "expression", "background")
+    // Slots in the order they are written into the prompt, per length. The framing comes early on
+    // purpose: a roll decides whether the face is visible before choosing expression and gaze.
+    private val SHORT = listOf("subject", "age", "hair_color", "outfit", "expression", "background")
     private val MEDIUM = listOf(
-        "subject", "hair_color", "hair_length", "eyes", "body", "outfit", "expression", "gaze", "pose",
-        "framing", "background", "lighting"
+        "subject", "age", "framing", "hair_color", "hair_length", "eyes", "body", "outfit", "feet",
+        "expression", "gaze", "posture", "gesture", "background", "lighting"
     )
     private val LONG = listOf(
-        "subject", "hair_color", "hair_length", "hair_style", "eyes", "body", "outfit", "accessory",
-        "expression", "gaze", "pose", "framing", "background", "prop", "prop", "lighting", "mood"
+        "subject", "age", "framing", "hair_color", "hair_length", "hair_style", "eyes", "body", "outfit",
+        "feet", "accessory", "expression", "gaze", "posture", "gesture", "background", "prop", "prop",
+        "lighting", "mood"
+    )
+    private val XL = listOf(
+        "subject", "age", "framing", "hair_color", "hair_length", "hair_style", "eyes", "body", "outfit",
+        "outfit_detail", "feet", "legwear", "accessory", "accessory", "expression", "gaze", "posture",
+        "gesture", "gesture", "background", "prop", "prop", "prop", "lighting", "mood", "atmosphere",
+        "atmosphere"
     )
     private val NSFW_SHORT = listOf(
-        "subject", "partner", "hair_color", "outfit", "expression", "pose", "background", "detail"
+        "subject", "partner", "age", "hair_color", "outfit", "expression", "posture", "background", "detail"
     )
     private val NSFW_MEDIUM = listOf(
-        "subject", "partner", "hair_color", "hair_length", "eyes", "body", "outfit", "expression",
-        "gaze", "pose", "framing", "background", "detail", "detail", "lighting"
+        "subject", "partner", "age", "framing", "hair_color", "hair_length", "eyes", "body", "outfit",
+        "feet", "expression", "gaze", "posture", "gesture", "background", "detail", "detail", "lighting"
     )
     private val NSFW_LONG = listOf(
-        "subject", "partner", "hair_color", "hair_length", "hair_style", "eyes", "body", "outfit",
-        "accessory", "expression", "gaze", "pose", "framing", "background", "prop", "prop",
-        "detail", "detail", "detail", "lighting", "mood"
+        "subject", "partner", "age", "framing", "hair_color", "hair_length", "hair_style", "eyes", "body",
+        "outfit", "feet", "accessory", "expression", "gaze", "posture", "gesture", "background", "prop",
+        "prop", "detail", "detail", "detail", "lighting", "mood"
     )
+    private val NSFW_XL = listOf(
+        "subject", "partner", "age", "framing", "hair_color", "hair_length", "hair_style", "eyes", "body",
+        "outfit", "outfit_detail", "feet", "legwear", "accessory", "accessory", "expression", "gaze",
+        "posture", "gesture", "gesture", "background", "prop", "prop", "prop", "detail", "detail",
+        "detail", "detail", "lighting", "mood", "atmosphere"
+    )
+
+    /** Face slots: skipped when the framing hides the face, restricted when seen from behind. */
+    private val FACE_SLOTS = setOf("eyes", "expression", "gaze")
+
+    /** Framings (or tags) centered on a body part: no expression or gaze with them. */
+    private val BODY_FOCUS = setOf(
+        "ass focus", "hip focus", "foot focus", "pov crotch", "crotch focus", "breast focus", "pussy focus",
+        "thigh focus", "back focus", "armpit focus", "cropped legs", "head out of frame", "lower body"
+    )
+
+    /** Feet tags that rule out shoes and socks. */
+    private val BARE_FEET = setOf(
+        "barefoot", "soles", "toes", "spread toes", "toe scrunch", "between toes", "toenail polish",
+        "toenails", "no shoes", "single bare foot", "foot worship", "licking foot", "footjob",
+        "two-footed footjob", "presenting foot", "tickling feet", "dirty feet", "soaking feet", "cum on feet"
+    )
+    private val FOOTWEAR_REGEX = Regex("""(thighhighs|socks|pantyhose|boots|shoes|footwear|stockings|kneehighs|loafers|sandals|fishnets|leg warmers)""")
 
     /** Slots that describe the looks of a character, already fixed once a character tag is typed. */
     private val CHARACTER_SLOTS = setOf("hair_color", "hair_length", "hair_style", "eyes")
@@ -111,9 +143,10 @@ object RandomPrompt {
         var section: MutableMap<String, Slot> = common
         var themeName: String? = null
         var themeIsNsfw = false
+        var themeWeight = 1
 
         fun closeTheme() {
-            themeName?.let { (if (themeIsNsfw) nsfwThemes else themes).add(Theme(it, section)) }
+            themeName?.let { (if (themeIsNsfw) nsfwThemes else themes).add(Theme(it, section, themeWeight)) }
             themeName = null
         }
 
@@ -125,6 +158,9 @@ object RandomPrompt {
                 val title = line.substring(1, line.length - 1).trim()
                 if (title.startsWith("theme ")) {
                     var name = title.removePrefix("theme ").trim()
+                    val weightMatch = Regex("""\s+weight=(\d+)$""").find(name)
+                    themeWeight = weightMatch?.groupValues?.get(1)?.toIntOrNull()?.coerceAtLeast(1) ?: 1
+                    if (weightMatch != null) name = name.substring(0, weightMatch.range.first).trim()
                     themeIsNsfw = name.endsWith(" nsfw")
                     if (themeIsNsfw) name = name.removeSuffix(" nsfw").trim()
                     themeName = name
@@ -243,12 +279,36 @@ object RandomPrompt {
             Length.SHORT -> if (nsfw) NSFW_SHORT else SHORT
             Length.MEDIUM -> if (nsfw) NSFW_MEDIUM else MEDIUM
             Length.LONG -> if (nsfw) NSFW_LONG else LONG
+            Length.XL -> if (nsfw) NSFW_XL else XL
         }
 
         val used = HashSet(typedNormalized)
         val added = ArrayList<String>()
+        // 0 = face visible, 1 = only from behind (looking back or nothing), 2 = no face
+        var faceMode = -1
+        var lookBack = false
         for (slotName in plan) {
             if (slotName in filled) continue
+            if (slotName in FACE_SLOTS) {
+                if (faceMode < 0) {
+                    faceMode = when {
+                        used.any { it in BODY_FOCUS } -> 2
+                        "from behind" in used -> 1
+                        else -> 0
+                    }
+                    lookBack = faceMode == 1 && "looking back" in used || faceMode == 1 && random.nextFloat() < 0.65f
+                }
+                if (faceMode == 2) continue
+                if (faceMode == 1) {
+                    if (!lookBack) continue
+                    if (slotName == "gaze") {
+                        if ("looking back" !in used && (exists == null || exists("looking_back"))) {
+                            used.add("looking back"); added.add("looking back")
+                        }
+                        continue
+                    }
+                }
+            }
             val themed = theme?.slots?.get(slotName)
                 ?: (if (nsfw) vocab.nsfwCommon[slotName] else null)
                 ?: vocab.common[slotName]
@@ -257,8 +317,16 @@ object RandomPrompt {
             val share = if (slotName == "outfit" || slotName == "background") POOL_SHARE_SCENE else POOL_SHARE
             val first = if (themed != null && pooled != null && random.nextFloat() < share) pooled else themed ?: pooled
             val second = if (first === pooled) themed else pooled
-            val tag = (first?.let { pick(it, used, exists, random) }
-                ?: second?.let { pick(it, used, exists, random) }) ?: continue
+            // No shoes or socks once the feet are bare
+            val bare = used.any { it in BARE_FEET }
+            val blocked: ((String) -> Boolean)? =
+                if (bare && (slotName == "legwear" || slotName == "accessory" || slotName == "outfit")) {
+                    { FOOTWEAR_REGEX.containsMatchIn(it) }
+                } else null
+            var tag = first?.let { pick(it, used, exists, blocked, random) }
+            // "-" means "nothing this time": no fallback to the other list
+            if (tag == null) tag = second?.let { pick(it, used, exists, blocked, random) }
+            if (tag == null || tag == NOTHING) continue
             used.addAll(tag.split(", "))
             added.add(tag)
         }
@@ -269,21 +337,36 @@ object RandomPrompt {
         return Result(text, added.flatMap { it.split(", ") })
     }
 
-    /** The theme the typed tags belong to, else a random one. */
+    /** The theme the typed tags belong to, else a random one (themes with a higher weight come up more). */
     private fun pickTheme(themes: List<Theme>, typed: Set<String>, random: Random): Theme? {
         if (themes.isEmpty()) return null
         val scores = themes.map { theme ->
             theme to theme.slots.values.sumOf { slot -> slot.tags.count { it in typed } }
         }
         val best = scores.maxOf { it.second }
-        if (best == 0) return themes.random(random)
-        return scores.filter { it.second == best }.map { it.first }.random(random)
+        val candidates = if (best == 0) themes else scores.filter { it.second == best }.map { it.first }
+        var roll = random.nextInt(candidates.sumOf { it.weight })
+        for (theme in candidates) {
+            roll -= theme.weight
+            if (roll < 0) return theme
+        }
+        return candidates.last()
     }
 
-    private fun pick(slot: Slot, used: Set<String>, exists: ((String) -> Boolean)?, random: Random): String? {
+    private const val NOTHING = "-"
+
+    private fun pick(
+        slot: Slot,
+        used: Set<String>,
+        exists: ((String) -> Boolean)?,
+        blocked: ((String) -> Boolean)?,
+        random: Random
+    ): String? {
         // An entry can be several tags ("a, b"); it is usable when none is used yet and all exist
         fun usable(i: Int): Boolean {
+            if (slot.tags[i] == NOTHING) return true
             val parts = slot.tags[i].split(", ")
+            if (blocked != null && parts.any(blocked)) return false
             return parts.none { it in used } && (exists == null || parts.all { exists(it.replace(' ', '_')) })
         }
         var total = 0

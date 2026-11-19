@@ -1,6 +1,11 @@
 package sh.hnet.comfychair.ui.components.shared
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -117,6 +122,8 @@ fun folderPathOf(modelPath: String): String {
  * @param depth         Nesting depth for indentation (0 = root)
  * @param onExpandFolder Invoked with the new expanded path when a folder is toggled
  * @param onSelectModel  Invoked with the model's full path when a leaf is clicked
+ * @param onLongClickModel Invoked with the model's full path on a long press (null: no long press)
+ * @param hasNote        Tells whether a model has a note, to show a marker next to it
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,7 +133,9 @@ fun HierarchicalTreeItems(
     selectedValue: String,
     depth: Int,
     onExpandFolder: (String) -> Unit,
-    onSelectModel: (String) -> Unit
+    onSelectModel: (String) -> Unit,
+    onLongClickModel: ((String) -> Unit)? = null,
+    hasNote: ((String) -> Boolean)? = null
 ) {
     for (node in nodes) {
         key(node) {
@@ -189,36 +198,81 @@ fun HierarchicalTreeItems(
                             selectedValue = selectedValue,
                             depth = depth + 1,
                             onExpandFolder = onExpandFolder,
-                            onSelectModel = onSelectModel
+                            onSelectModel = onSelectModel,
+                            onLongClickModel = onLongClickModel,
+                            hasNote = hasNote
                         )
                     }
                 }
 
                 is ModelTreeNode.Leaf -> {
-                    DropdownMenuItem(
-                        text = {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Spacer(modifier = Modifier.width((depth * 16).dp))
-                                Text(
-                                    text = node.name,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = if (node.fullPath == selectedValue)
-                                        MaterialTheme.colorScheme.primary
-                                    else
-                                        MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        },
-                        onClick = { onSelectModel(node.fullPath) },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
+                    val leafContent: @Composable () -> Unit = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Spacer(modifier = Modifier.width((depth * 16).dp))
+                            Text(
+                                text = node.name,
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                color = if (node.fullPath == selectedValue)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+                            if (hasNote?.invoke(node.fullPath) == true) NoteMarker()
+                        }
+                    }
+                    if (onLongClickModel == null) {
+                        DropdownMenuItem(
+                            text = leafContent,
+                            onClick = { onSelectModel(node.fullPath) },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                        )
+                    } else {
+                        LongPressMenuItem(
+                            onClick = { onSelectModel(node.fullPath) },
+                            onLongClick = { onLongClickModel(node.fullPath) },
+                            content = leafContent
+                        )
+                    }
                 }
             }
         }
+    }
+}
+
+/** Small marker shown next to a model that has a note. */
+@Composable
+fun NoteMarker() {
+    Spacer(modifier = Modifier.width(6.dp))
+    Icon(
+        imageVector = Icons.Default.Info,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.size(16.dp)
+    )
+}
+
+/** A menu row that reacts to a tap and to a long press (DropdownMenuItem only knows the tap). */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun LongPressMenuItem(
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+            .padding(ExposedDropdownMenuDefaults.ItemContentPadding)
+    ) {
+        content()
     }
 }

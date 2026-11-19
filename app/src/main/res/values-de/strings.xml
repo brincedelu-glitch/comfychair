@@ -686,6 +686,11 @@
     <string name="random_prompt_medium">Mittel</string>
     <string name="random_prompt_nsfw">NSFW</string>
     <string name="random_prompt_long">Lang</string>
+    <string name="lora_notes_title">LoRA-Notizen</string>
+    <string name="lora_notes_hint">Trigger-Wörter, Einstellungen …</string>
+    <string name="lora_notes_copy">Kopieren</string>
+    <string name="lora_notes_save">Speichern</string>
+    <string name="random_prompt_xl">Sehr lang</string>
 
     <!-- Artist selection in the generation options -->
     <string name="artist_label">Künstler</string>

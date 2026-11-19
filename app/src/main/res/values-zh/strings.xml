@@ -682,6 +682,11 @@
     <string name="random_prompt_medium">中</string>
     <string name="random_prompt_nsfw">NSFW</string>
     <string name="random_prompt_long">长</string>
+    <string name="lora_notes_title">LoRA 备注</string>
+    <string name="lora_notes_hint">触发词、设置…</string>
+    <string name="lora_notes_copy">复制</string>
+    <string name="lora_notes_save">保存</string>
+    <string name="random_prompt_xl">很长</string>
 
     <!-- Artist selection in the generation options -->
     <string name="artist_label">画师</string>

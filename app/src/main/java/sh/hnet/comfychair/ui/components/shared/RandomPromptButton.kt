@@ -111,6 +111,7 @@ fun RandomPromptButton(
                     RandomPrompt.Length.SHORT -> R.string.random_prompt_short
                     RandomPrompt.Length.MEDIUM -> R.string.random_prompt_medium
                     RandomPrompt.Length.LONG -> R.string.random_prompt_long
+                    RandomPrompt.Length.XL -> R.string.random_prompt_xl
                 }
                 DropdownMenuItem(
                     text = { Text(stringResource(label)) },

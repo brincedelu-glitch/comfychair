@@ -26,6 +26,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -33,11 +34,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import sh.hnet.comfychair.R
 import sh.hnet.comfychair.model.LoraSelection
+import sh.hnet.comfychair.util.LoraNotes
 import sh.hnet.comfychair.ui.components.shared.HierarchicalTreeItems
+import sh.hnet.comfychair.ui.components.shared.LongPressMenuItem
+import sh.hnet.comfychair.ui.components.shared.LoraNotesDialog
+import sh.hnet.comfychair.ui.components.shared.NoteMarker
 import sh.hnet.comfychair.ui.components.shared.ModelPathText
 import sh.hnet.comfychair.ui.components.shared.buildModelTree
 import sh.hnet.comfychair.ui.components.shared.folderPathOf
@@ -140,7 +146,11 @@ private fun LoraEntryItem(
 
     val tree = remember(availableLoras) { buildModelTree(availableLoras) }
     val hasFolders = remember(tree) { modelTreeHasFolders(tree) }
-    var expandedPath by remember(lora.name) { mutableStateOf(folderPathOf(lora.name)) }
+    // Folders start closed at every opening of the list
+    var expandedPath by remember { mutableStateOf("") }
+    var notesFor by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    LaunchedEffect(Unit) { LoraNotes.ensureLoaded(context) }
 
     // Label carries the position and folder, the field shows only the file name
     val folder = folderPathOf(lora.name)
@@ -150,6 +160,8 @@ private fun LoraEntryItem(
         stringResource(R.string.label_lora_entry_folder, index + 1, folder)
     }
     val fileName = lora.name.replace('\\', '/').substringAfterLast('/').removeSuffix(".safetensors")
+
+    notesFor?.let { LoraNotesDialog(loraPath = it, onDismiss = { notesFor = null }) }
 
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainer,
@@ -171,7 +183,7 @@ private fun LoraEntryItem(
                     expanded = expanded,
                     onExpandedChange = {
                         expanded = it
-                        if (it) expandedPath = folderPathOf(lora.name)
+                        if (it) expandedPath = ""
                     },
                     modifier = Modifier.weight(1f)
                 ) {
@@ -193,14 +205,19 @@ private fun LoraEntryItem(
                     ) {
                         if (!hasFolders) {
                             availableLoras.forEach { option ->
-                                DropdownMenuItem(
-                                    text = { ModelPathText(option) },
+                                LongPressMenuItem(
                                     onClick = {
                                         onNameChange(option)
                                         expanded = false
                                     },
-                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                )
+                                    onLongClick = {
+                                        expanded = false
+                                        notesFor = option
+                                    }
+                                ) {
+                                    ModelPathText(option)
+                                    if (LoraNotes.has(option)) NoteMarker()
+                                }
                             }
                         } else {
                             HierarchicalTreeItems(
@@ -212,7 +229,12 @@ private fun LoraEntryItem(
                                 onSelectModel = {
                                     onNameChange(it)
                                     expanded = false
-                                }
+                                },
+                                onLongClickModel = {
+                                    expanded = false
+                                    notesFor = it
+                                },
+                                hasNote = { LoraNotes.has(it) }
                             )
                         }
                     }
