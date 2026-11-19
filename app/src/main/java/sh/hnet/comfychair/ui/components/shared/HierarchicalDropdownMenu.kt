@@ -258,7 +258,7 @@ fun NoteMarker() {
 }
 
 /** A menu row that reacts to a tap and to a long press (DropdownMenuItem only knows the tap). */
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LongPressMenuItem(
     onClick: () -> Unit,
